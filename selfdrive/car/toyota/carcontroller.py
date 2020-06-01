@@ -2,7 +2,8 @@ from cereal import car
 from common.numpy_fast import clip
 from selfdrive.car import apply_toyota_steer_torque_limits, create_gas_command, make_can_msg
 from selfdrive.car.toyota.toyotacan import create_steer_command, create_ui_command, \
-                                           create_accel_command, create_acc_cancel_command, create_fcw_command
+                                           create_accel_command, create_acc_cancel_command, \
+                                           create_fcw_command
 from selfdrive.car.toyota.values import Ecu, CAR, STATIC_MSGS, SteerLimitParams
 from opendbc.can.packer import CANPacker
 
@@ -11,7 +12,7 @@ VisualAlert = car.CarControl.HUDControl.VisualAlert
 # Accel limits
 ACCEL_HYST_GAP = 0.02  # don't change accel command for small oscilalitons within this value
 ACCEL_MAX = 1.5  # 1.5 m/s2
-ACCEL_MIN = -3.0 # 3   m/s2
+ACCEL_MIN = -3.0  # 3   m/s2
 ACCEL_SCALE = max(ACCEL_MAX, -ACCEL_MIN)
 
 def accel_hysteresis(accel, accel_steady, enabled):
@@ -41,8 +42,10 @@ class CarController():
     self.steer_rate_limited = False
 
     self.fake_ecus = set()
-    if CP.enableCamera: self.fake_ecus.add(Ecu.fwdCamera)
-    if CP.enableDsu: self.fake_ecus.add(Ecu.dsu)
+    if CP.enableCamera:
+      self.fake_ecus.add(Ecu.fwdCamera)
+    if CP.enableDsu:
+      self.fake_ecus.add(Ecu.dsu)
 
     self.packer = CANPacker(dbc_name)
 
@@ -106,6 +109,11 @@ class CarController():
     # on consecutive messages
     if Ecu.fwdCamera in self.fake_ecus:
       can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
+
+      # LTA mode. Set ret.steerControlType = car.CarParams.SteerControlType.angle and whitelist 0x191 in the panda
+      # if frame % 2 == 0:
+      #   can_sends.append(create_steer_command(self.packer, 0, 0, frame // 2))
+      #   can_sends.append(create_lta_steer_command(self.packer, actuators.steerAngle, apply_steer_req, frame // 2))
 
     # we can spam can to cancel the system even if we are using lat only control
     if (frame % 3 == 0 and CS.CP.openpilotLongitudinalControl) or (pcm_cancel_cmd and Ecu.fwdCamera in self.fake_ecus):

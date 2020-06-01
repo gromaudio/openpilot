@@ -20,7 +20,7 @@ class CarControllerParams():
     self.STEER_DRIVER_ALLOWANCE = 50   # allowed driver torque before start limiting
     self.STEER_DRIVER_MULTIPLIER = 4   # weight driver torque heavily
     self.STEER_DRIVER_FACTOR = 100     # from dbc
-    self.NEAR_STOP_BRAKE_PHASE = 0.5 # m/s, more aggressive braking near full stop
+    self.NEAR_STOP_BRAKE_PHASE = 0.5  # m/s, more aggressive braking near full stop
 
     # Takes case of "Service Adaptive Cruise" and "Service Front Camera"
     # dashboard messages.
@@ -60,19 +60,24 @@ class CarController():
     self.apply_steer_last = 0
     self.lka_icon_status_last = (False, False)
     self.steer_rate_limited = False
+    self.fcw_frames = 0
 
     self.params = CarControllerParams()
 
     self.packer_pt = CANPacker(DBC[CP.carFingerprint]['pt'])
     self.packer_ch = CANPacker(DBC[CP.carFingerprint]['chassis'])
 
-  def update(self, enabled, CS, frame, actuators, \
+  def update(self, enabled, CS, frame, actuators,
              hud_v_cruise, hud_show_lanes, hud_show_car, hud_alert):
 
     P = self.params
 
     # Send CAN commands.
     can_sends = []
+
+    # FCW: trigger FCWAlert for 100 frames (4 seconds)
+    if hud_alert == VisualAlert.fcw:
+      self.fcw_frames = 100
 
     ### STEER ###
 
@@ -122,7 +127,13 @@ class CarController():
 
     # Send dashboard UI commands (ACC status), 25hz
     if (frame % 4) == 0:
-      can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, enabled, hud_v_cruise * CV.MS_TO_KPH, hud_show_car))
+      # Send FCW if applicable
+      send_fcw = 0
+      if self.fcw_frames > 0:
+        send_fcw = 0x3
+        self.fcw_frames -= 1
+
+      can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, enabled, hud_v_cruise * CV.MS_TO_KPH, hud_show_car, send_fcw))
 
     # Radar needs to know current speed and yaw rate (50hz),
     # and that ADAS is alive (10hz)
@@ -150,8 +161,7 @@ class CarController():
     lka_active = CS.lkas_status == 1
     lka_critical = lka_active and abs(actuators.steer) > 0.9
     lka_icon_status = (lka_active, lka_critical)
-    if frame % P.CAMERA_KEEPALIVE_STEP == 0 \
-        or lka_icon_status != self.lka_icon_status_last:
+    if frame % P.CAMERA_KEEPALIVE_STEP == 0 or lka_icon_status != self.lka_icon_status_last:
       steer_alert = hud_alert == VisualAlert.steerRequired
       can_sends.append(gmcan.create_lka_icon_command(CanBus.SW_GMLAN, lka_active, lka_critical, steer_alert))
       self.lka_icon_status_last = lka_icon_status

@@ -8,15 +8,14 @@ from selfdrive.car.interfaces import CarInterfaceBase
 
 # mocked car interface to work with chffrplus
 TS = 0.01  # 100Hz
-YAW_FR = 0.2 # ~0.8s time constant on yaw rate filter
+YAW_FR = 0.2  # ~0.8s time constant on yaw rate filter
 # low pass gain
 LPG = 2 * 3.1415 * YAW_FR * TS / (1 + 2 * 3.1415 * YAW_FR * TS)
 
 
 class CarInterface(CarInterfaceBase):
   def __init__(self, CP, CarController, CarState):
-    self.CP = CP
-    self.CC = CarController
+    super().__init__(CP, CarController, CarState)
 
     cloudlog.debug("Using Mock Car Interface")
 
@@ -42,7 +41,7 @@ class CarInterface(CarInterfaceBase):
     ret.rotationalInertia = 2500.
     ret.wheelbase = 2.70
     ret.centerToFront = ret.wheelbase * 0.5
-    ret.steerRatio = 13. # reasonable
+    ret.steerRatio = 13.  # reasonable
     ret.tireStiffnessFront = 1e6    # very stiff to neglect slip
     ret.tireStiffnessRear = 1e6     # very stiff to neglect slip
 

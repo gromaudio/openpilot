@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# type: ignore
 import psutil
 import time
 import os
@@ -68,7 +69,7 @@ if __name__ == "__main__":
       k = ' '.join(p.cmdline())
       print('Add monitored proc:', k)
       stats[k] = {'cpu_samples': defaultdict(list), 'min': defaultdict(lambda: None), 'max': defaultdict(lambda: None),
-                  'avg': defaultdict(lambda: 0.0), 'last_cpu_times': None, 'last_sys_time':None}
+                  'avg': defaultdict(lambda: 0.0), 'last_cpu_times': None, 'last_sys_time': None}
       stats[k]['last_sys_time'] = timer()
       stats[k]['last_cpu_times'] = p.cpu_times()
       monitored_procs.append(p)
@@ -112,7 +113,7 @@ if __name__ == "__main__":
           for stat_type in ['avg', 'min', 'max']:
             msg += '\n {}: {}'.format(stat_type, [name + ':' + str(round(stat[stat_type][name]*100, 2)) for name in cpu_time_names])
         l.append((os.path.basename(k), stat['avg']['total'], msg))
-      l.sort(key= lambda x: -x[1])
+      l.sort(key=lambda x: -x[1])
       for x in l:
         print(x[2])
       print('avg sum: {0:.2%} over {1} samples {2} seconds\n'.format(
