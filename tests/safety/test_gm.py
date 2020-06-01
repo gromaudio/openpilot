@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import unittest
+from typing import Dict, List
 import numpy as np
 from panda import Panda
 from panda.tests.safety import libpandasafety_py
@@ -27,8 +28,8 @@ class TestGmSafety(common.PandaSafetyTest):
   STANDSTILL_THRESHOLD = 0
   RELAY_MALFUNCTION_ADDR = 384
   RELAY_MALFUNCTION_BUS = 0
-  FWD_BLACKLISTED_ADDRS = {}
-  FWD_BUS_LOOKUP = {}
+  FWD_BLACKLISTED_ADDRS: Dict[int, List[int]] = {}
+  FWD_BUS_LOOKUP: Dict[int, int] = {}
 
   def setUp(self):
     self.packer = CANPackerPanda("gm_global_a_powertrain")
@@ -38,12 +39,17 @@ class TestGmSafety(common.PandaSafetyTest):
     self.safety.init_tests()
 
   # override these tests from PandaSafetyTest, GM uses button enable
-  def test_disable_control_allowed_from_cruise(self): pass
-  def test_enable_control_allowed_from_cruise(self): pass
-  def test_cruise_engaged_prev(self): pass
+  def test_disable_control_allowed_from_cruise(self):
+    pass
+
+  def test_enable_control_allowed_from_cruise(self):
+    pass
+
+  def test_cruise_engaged_prev(self):
+    pass
 
   def _speed_msg(self, speed):
-    values = {"%sWheelSpd"%s: speed for s in ["RL", "RR"]}
+    values = {"%sWheelSpd" % s: speed for s in ["RL", "RR"]}
     return self.packer.make_can_msg_panda("EBCMWheelSpdRear", 0, values)
 
   def _button_msg(self, buttons):
@@ -108,7 +114,7 @@ class TestGmSafety(common.PandaSafetyTest):
 
   def test_gas_safety_check(self):
     for enabled in [0, 1]:
-      for g in range(0, 2**12-1):
+      for g in range(0, 2**12 - 1):
         self.safety.set_controls_allowed(enabled)
         if abs(g) > MAX_GAS or (not enabled and g != MAX_REGEN):
           self.assertFalse(self._tx(self._send_gas_msg(g)))
@@ -179,7 +185,6 @@ class TestGmSafety(common.PandaSafetyTest):
       self.safety.set_torque_driver(-MAX_STEER * sign, -MAX_STEER * sign)
       self.assertFalse(self._tx(self._torque_msg((MAX_STEER - MAX_RATE_DOWN + 1) * sign)))
 
-
   def test_realtime_limits(self):
     self.safety.set_controls_allowed(True)
 
@@ -201,7 +206,6 @@ class TestGmSafety(common.PandaSafetyTest):
       self.safety.set_timer(RT_INTERVAL + 1)
       self.assertTrue(self._tx(self._torque_msg(sign * (MAX_RT_DELTA - 1))))
       self.assertTrue(self._tx(self._torque_msg(sign * (MAX_RT_DELTA + 1))))
-
 
   def test_tx_hook_on_pedal_pressed(self):
     for pedal in ['brake', 'gas']:
