@@ -57,6 +57,34 @@ if arch == "aarch64" or arch == "larch64":
     cxxflags = ["-DQCOM", "-mcpu=cortex-a57"]
     rpath = ["/system/vendor/lib64"]
 
+elif arch == "armv7l":
+  lenv = {
+    "LD_LIBRARY_PATH": '/data/data/com.termux/files/usr/lib',
+    "PATH": os.environ['PATH'],
+  }
+
+  lenv["ANDROID_DATA"] = os.environ['ANDROID_DATA']
+  lenv["ANDROID_ROOT"] = os.environ['ANDROID_ROOT']
+
+  cpppath = [
+    "#phonelibs/opencl/include",
+  ]
+
+  libpath = [
+    "/usr/lib",
+    "/data/data/com.termux/files/usr/lib",
+    "/system/vendor/lib",
+    "/system/comma/usr/lib",
+    "#phonelibs/nanovg",
+    #add tensorflow, zmq?, capnp-cpp?  livyuv? opencv?
+  ]
+
+  libpath += ["#phonelibs/snpe/arm-android-clang6.0"]
+  libpath += ["#phonelibs/libyuv/lib"]
+  cflags = ["-DQCOM", "-mcpu=cortex-a17"]
+  cxxflags = ["-DQCOM", "-mcpu=cortex-a17"]
+  rpath = ["/system/vendor/lib"]
+
 else:
   lenv = {
     "PATH": "#external/bin:" + os.environ['PATH'],
