@@ -1,6 +1,6 @@
 Import('env', 'common', 'messaging')
 
-env.Program('boardd.cc', LIBS=['usb-1.0', common, messaging, 'pthread', 'zmq', 'capnp', 'kj'])
+env.Program('boardd.cc', LIBS=['usb-1.0', common, messaging, 'pthread', 'zmq', 'capnp', 'kj', 'atomic'])
 env.Library('libcan_list_to_can_capnp', ['can_list_to_can_capnp.cc'])
 
 env.Command(['boardd_api_impl.so'],

@@ -92,7 +92,7 @@ else:
   cpppath = [
     "#phonelibs/capnp-cpp/include",
     "#phonelibs/zmq/x64/include",
-    "#external/tensorflow/include",
+    "#external/tensorflow/include",A
   ]
 
   if arch == "Darwin":
@@ -178,7 +178,7 @@ env = Environment(
 
   CC='clang',
   CXX='clang++',
-  LINKFLAGS=ldflags_asan,
+  LINKFLAGS=ldflags_asan + ["-latomic"],
 
   RPATH=rpath,
 
@@ -208,7 +208,7 @@ if os.environ.get('SCONS_PROGRESS'):
 SHARED = False
 
 def abspath(x):
-  if arch == 'aarch64':
+  if arch == 'aarch64' or arch == 'armv7l':
     pth = os.path.join("/data/pythonpath", x[0].path)
     env.Depends(pth, x)
     return File(pth)
