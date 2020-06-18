@@ -9,7 +9,7 @@ common_src = [
   "transforms/loadyuv.c",
   "transforms/transform.c"]
 
-if arch == "aarch64":
+if arch == "aarch64" or arch == "armv7l":
   libs += ['gsl', 'CB', 'gnustl_shared']
 elif arch == "larch64":
   libs += ['gsl', 'CB', 'symphony-cpu', 'pthread']
@@ -24,10 +24,10 @@ else:
 
 common = lenv.Object(common_src)
 
-lenv.Program('_dmonitoringmodeld', [
-    "dmonitoringmodeld.cc",
-    "models/dmonitoring.cc",
-  ]+common, LIBS=libs)
+#lenv.Program('_dmonitoringmodeld', [
+#    "dmonitoringmodeld.cc",
+#    "models/dmonitoring.cc",
+#  ]+common, LIBS=libs)
 
 lenv.Program('_modeld', [
     "modeld.cc",

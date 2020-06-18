@@ -81,8 +81,8 @@ elif arch == "armv7l":
 
   libpath += ["#phonelibs/snpe/arm-android-clang6.0"]
   libpath += ["#phonelibs/libyuv/lib"]
-  cflags = ["-DQCOM", "-mcpu=cortex-a17"]
-  cxxflags = ["-DQCOM", "-mcpu=cortex-a17"]
+  cflags = ["-mcpu=cortex-a17"]
+  cxxflags = ["-mcpu=cortex-a17"]
   rpath = ["/system/vendor/lib"]
 
 else:
@@ -251,9 +251,9 @@ SConscript(['common/SConscript'])
 SConscript(['common/kalman/SConscript'])
 SConscript(['phonelibs/SConscript'])
 
-if arch != "Darwin":
-  SConscript(['selfdrive/camerad/SConscript'])
-  SConscript(['selfdrive/modeld/SConscript'])
+#if arch != "Darwin":
+  #SConscript(['selfdrive/camerad/SConscript'])
+  #SConscript(['selfdrive/modeld/SConscript'])
 
 SConscript(['selfdrive/controls/lib/cluster/SConscript'])
 SConscript(['selfdrive/controls/lib/lateral_mpc/SConscript'])
@@ -263,13 +263,13 @@ SConscript(['selfdrive/controls/lib/longitudinal_mpc_model/SConscript'])
 SConscript(['selfdrive/boardd/SConscript'])
 SConscript(['selfdrive/proclogd/SConscript'])
 
-SConscript(['selfdrive/ui/SConscript'])
+#SConscript(['selfdrive/ui/SConscript'])
 SConscript(['selfdrive/loggerd/SConscript'])
 
-if arch == "aarch64":
-  SConscript(['selfdrive/logcatd/SConscript'])
-  SConscript(['selfdrive/sensord/SConscript'])
-  SConscript(['selfdrive/clocksd/SConscript'])
+#if arch == "aarch64" or arch == "armv7l":
+  #SConscript(['selfdrive/logcatd/SConscript'])
+  #SConscript(['selfdrive/sensord/SConscript'])
+  #SConscript(['selfdrive/clocksd/SConscript'])
 
 SConscript(['selfdrive/locationd/SConscript'])
 SConscript(['selfdrive/locationd/kalman/SConscript'])
