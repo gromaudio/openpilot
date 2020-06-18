@@ -581,7 +581,7 @@ void* processing_thread(void *arg) {
     // one thumbnail per 5 seconds (instead of %5 == 0 posenet)
     if (cnt % 100 == 3) {
       uint8_t* thumbnail_buffer = NULL;
-      uint64_t thumbnail_len = 0;
+      unsigned long thumbnail_len = 0;
 
       unsigned char *row = (unsigned char *)malloc(s->rgb_width/4*3);
 
