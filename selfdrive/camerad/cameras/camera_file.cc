@@ -10,15 +10,12 @@
 #include "common/swaglog.h"
 #include "buffering.h"
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/videoio.hpp>
-
 extern volatile sig_atomic_t do_exit;
 
 #define FRAME_WIDTH  1164
 #define FRAME_HEIGHT 874
+
+unsigned char frame[(FRAME_WIDTH*FRAME_HEIGHT*3)/2];
 
 namespace {
 void camera_open(CameraState *s, VisionBuf *camera_bufs, bool rear) {
@@ -64,8 +61,8 @@ static void* rear_thread(void *arg) {
   // in the vertical and horizontal directions for U and V.
   unsigned char *lum, *u, *v;
   lum = frame;
-  u = frame + H*W;
-  v = u + (H*W/4);
+  u = frame + FRAME_HEIGHT*FRAME_WIDTH;
+  v = u + (FRAME_HEIGHT*FRAME_WIDTH/4);
 
 
   // Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
@@ -78,7 +75,7 @@ static void* rear_thread(void *arg) {
     // Note that the full frame size (in bytes) for yuv420p
     // is (W*H*3)/2. i.e. 1.5 bytes per pixel. This is due
     // to the U and V components being stored at lower resolution.
-    count = fread(frame, 1, (H*W*3)/2, pipein);
+    count = fread(frame, 1, (FRAME_HEIGHT*FRAME_WIDTH*3)/2, pipein);
        
      int transformed_size = count;
 
