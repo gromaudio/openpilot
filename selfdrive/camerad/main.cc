@@ -7,7 +7,7 @@
 #elif QCOM2
 #include "cameras/camera_qcom2.h"
 #elif WEBCAM
-#include "cameras/camera_webcam.h"
+#include "cameras/camera_file.h"
 #else
 #include "cameras/camera_frame_stream.h"
 #endif
@@ -383,8 +383,7 @@ void* processing_thread(void *arg) {
   LOG("setpriority returns %d", err);
 
   // init cl stuff
-  const cl_queue_properties props[] = {0}; //CL_QUEUE_PRIORITY_KHR, CL_QUEUE_PRIORITY_HIGH_KHR, 0};
-  cl_command_queue q = clCreateCommandQueueWithProperties(s->context, s->device_id, props, &err);
+  cl_command_queue q = clCreateCommandQueue(s->context, s->device_id, 0, &err);
   assert(err == 0);
 
   // init the net
