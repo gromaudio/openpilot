@@ -4,6 +4,7 @@
 #include <string.h>
 #include <signal.h>
 #include <pthread.h>
+#include <assert.h>
 
 #include "common/util.h"
 #include "common/timing.h"
