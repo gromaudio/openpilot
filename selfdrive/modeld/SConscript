@@ -9,10 +9,10 @@ common_src = [
   "transforms/loadyuv.c",
   "transforms/transform.c"]
 
-if arch == "aarch64" or arch == "armv7l":
+if arch == "aarch64":
   libs += ['gsl', 'CB', 'gnustl_shared']
-elif arch == "larch64":
-  libs += ['gsl', 'CB', 'symphony-cpu', 'pthread']
+elif arch == "armv7l":
+  libs += ['gsl', 'gnustl_shared', 'gslcblas', 'symphony-cpu', 'atomic']
 else:
   libs += ['symphony-cpu', 'pthread']
 
