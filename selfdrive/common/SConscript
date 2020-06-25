@@ -31,7 +31,7 @@ elif arch == "armv7l":
     'touch.c',
     'visionbuf_ion.c',
   ]
-  _gpu_libs = ['gui', 'adreno_utils']
+  _gpu_libs = ['gui']
 elif arch == "larch64":
   defines = {"CLU_NO_CACHE": None}
   files += [
