@@ -28,7 +28,7 @@ except FileExistsError:
 except PermissionError:
   print("WARNING: failed to make /dev/shm")
 
-if ANDROID:
+if ANDROID or WEVBCAM:
   os.chmod("/dev/shm", 0o777)
 
 def unblock_stdout():
@@ -68,7 +68,7 @@ def unblock_stdout():
 if __name__ == "__main__":
   unblock_stdout()
 
-if __name__ == "__main__" and ANDROID:
+if __name__ == "__main__" and (ANDROID or WEBCAM):
   from common.spinner import Spinner
   from common.text_window import TextWindow
 else:
@@ -83,66 +83,66 @@ from multiprocessing import Process
 spinner = Spinner()
 spinner.update("0")
 
-if not prebuilt:
-  for retry in [True, False]:
-    # run scons
-    env = os.environ.copy()
-    env['SCONS_PROGRESS'] = "1"
-    env['SCONS_CACHE'] = "1"
-
-    nproc = os.cpu_count()
-    j_flag = "" if nproc is None else "-j%d" % (nproc - 1)
-    scons = subprocess.Popen(["scons", j_flag], cwd=BASEDIR, env=env, stderr=subprocess.PIPE)
-
-    compile_output = []
-
-    # Read progress from stderr and update spinner
-    while scons.poll() is None:
-      try:
-        line = scons.stderr.readline()
-        if line is None:
-          continue
-        line = line.rstrip()
-
-        prefix = b'progress: '
-        if line.startswith(prefix):
-          i = int(line[len(prefix):])
-          if spinner is not None:
-            spinner.update("%d" % (70.0 * (i / TOTAL_SCONS_NODES)))
-        elif len(line):
-          compile_output.append(line)
-          print(line.decode('utf8', 'replace'))
-      except Exception:
-        pass
-
-    if scons.returncode != 0:
-      # Read remaining output
-      r = scons.stderr.read().split(b'\n')
-      compile_output += r
-
-      if retry:
-        print("scons build failed, cleaning in")
-        for i in range(3,-1,-1):
-          print("....%d" % i)
-          time.sleep(1)
-        subprocess.check_call(["scons", "-c"], cwd=BASEDIR, env=env)
-        shutil.rmtree("/tmp/scons_cache")
-      else:
-        # Build failed log errors
-        errors = [line.decode('utf8', 'replace') for line in compile_output
-                  if any([err in line for err in [b'error: ', b'not found, needed by target']])]
-        error_s = "\n".join(errors)
-        add_logentries_handler(cloudlog)
-        cloudlog.error("scons build failed\n" + error_s)
-
-        # Show TextWindow
-        error_s = "\n \n".join(["\n".join(textwrap.wrap(e, 65)) for e in errors])
-        with TextWindow("Openpilot failed to build\n \n" + error_s) as t:
-          t.wait_for_exit()
-
-        exit(1)
-    else:
-      break
+#if not prebuilt:
+#  for retry in [True, False]:
+#    # run scons
+#    env = os.environ.copy()
+#    env['SCONS_PROGRESS'] = "1"
+#    env['SCONS_CACHE'] = "1"
+#
+#    nproc = os.cpu_count()
+#    j_flag = "" if nproc is None else "-j%d" % (nproc - 1)
+#    scons = subprocess.Popen(["scons", j_flag], cwd=BASEDIR, env=env, stderr=subprocess.PIPE)
+#
+#    compile_output = []
+# 
+#    # Read progress from stderr and update spinner
+#    while scons.poll() is None:
+#      try:
+#        line = scons.stderr.readline()
+#        if line is None:
+#          continue
+#        line = line.rstrip()
+#
+#        prefix = b'progress: '
+#        if line.startswith(prefix):
+#          i = int(line[len(prefix):])
+#          if spinner is not None:
+#            spinner.update("%d" % (70.0 * (i / TOTAL_SCONS_NODES)))
+#        elif len(line):
+#          compile_output.append(line)
+#          print(line.decode('utf8', 'replace'))
+#      except Exception:
+#        pass
+#
+#    if scons.returncode != 0:
+#      # Read remaining output
+#      r = scons.stderr.read().split(b'\n')
+#      compile_output += r
+#
+#      if retry:
+#        print("scons build failed, cleaning in")
+#        for i in range(3,-1,-1):
+#          print("....%d" % i)
+#          time.sleep(1)
+#        subprocess.check_call(["scons", "-c"], cwd=BASEDIR, env=env)
+#        shutil.rmtree("/tmp/scons_cache")
+#      else:
+#        # Build failed log errors
+#        errors = [line.decode('utf8', 'replace') for line in compile_output
+#                  if any([err in line for err in [b'error: ', b'not found, needed by target']])]
+#        error_s = "\n".join(errors)
+#        add_logentries_handler(cloudlog)
+#        cloudlog.error("scons build failed\n" + error_s)
+#
+#        # Show TextWindow
+#        error_s = "\n \n".join(["\n".join(textwrap.wrap(e, 65)) for e in errors])
+#        with TextWindow("Openpilot failed to build\n \n" + error_s) as t:
+#          t.wait_for_exit()
+#
+#        exit(1)
+#    else:
+#      break
 
 import cereal
 import cereal.messaging as messaging
@@ -224,12 +224,19 @@ if ANDROID:
     'updated',
   ]
 
+if WEBCAM:
+  persistent_processes += [
+    'logcatd',
+    'tombstoned',
+    'updated',
+  ]
+
 car_started_processes = [
   'controlsd',
   'plannerd',
   'loggerd',
   'radard',
-  'dmonitoringd',
+  #'dmonitoringd',
   'calibrationd',
   'paramsd',
   'camerad',
@@ -241,7 +248,7 @@ car_started_processes = [
 
 if WEBCAM:
   car_started_processes += [
-    'dmonitoringmodeld',
+    #'dmonitoringmodeld',
   ]
 
 if ANDROID:
@@ -411,7 +418,7 @@ def manager_init(should_register=True):
     pass
 
   # ensure shared libraries are readable by apks
-  if ANDROID:
+  if ANDROID or WEBCAM:
     os.chmod(BASEDIR, 0o755)
     os.chmod(os.path.join(BASEDIR, "cereal"), 0o755)
     os.chmod(os.path.join(BASEDIR, "cereal", "libmessaging_shared.so"), 0o755)
@@ -440,7 +447,7 @@ def manager_thread():
     start_managed_process(p)
 
   # start offroad
-  if ANDROID:
+  if ANDROID or WEBCAM:
     pm_apply_packages('enable')
     start_offroad()
 
