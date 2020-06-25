@@ -1,2 +1,2 @@
 Import('env', 'messaging')
-env.Program('logcatd.cc', LIBS=[messaging, 'cutils', 'zmq', 'czmq', 'capnp', 'kj'])
+env.Program('logcatd.cc', LIBS=[messaging, 'cutils', 'zmq', 'czmq', 'capnp', 'kj', 'log', 'atomic'])
