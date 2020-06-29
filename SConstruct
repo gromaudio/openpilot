@@ -155,7 +155,7 @@ env = Environment(
     "#selfdrive",
     "#phonelibs/bzip2",
     "#phonelibs/libyuv/include",
-    "#Phonelibs/openmax/include",
+    "#phonelibs/openmax/include",
     "#phonelibs/json11",
     "#phonelibs/eigen",
     "#phonelibs/curl/include",

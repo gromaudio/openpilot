@@ -447,7 +447,7 @@ def manager_thread():
     start_managed_process(p)
 
   # start offroad
-  if ANDROID or WEBCAM:
+  if ANDROID:
     pm_apply_packages('enable')
     start_offroad()
 
@@ -625,4 +625,4 @@ if __name__ == "__main__":
     raise
 
   # manual exit because we are forked
-  Sys.exit(0)
+  sys.exit(0)
