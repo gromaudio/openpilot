@@ -27,7 +27,7 @@ def set_realtime_priority(level):
     return
   if platform.machine() == "x86_64":
     NR_gettid = 186
-  elif platform.machine() == "aarch64":
+  elif platform.machine() == "armv7l" or platform.machine() == "aarch64":
     NR_gettid = 178
   else:
     raise NotImplementedError
