@@ -75,6 +75,7 @@ elif arch == "armv7l":
     "/data/data/com.termux/files/usr/lib",
     "/system/vendor/lib",
     "/system/comma/usr/lib",
+    "/vendor/lib/egl",
     "#phonelibs/nanovg",
     #add tensorflow, zmq?, capnp-cpp?  livyuv? opencv?
   ]
@@ -154,7 +155,7 @@ env = Environment(
     "#selfdrive",
     "#phonelibs/bzip2",
     "#phonelibs/libyuv/include",
-    "#phonelibs/openmax/include",
+    "#Phonelibs/openmax/include",
     "#phonelibs/json11",
     "#phonelibs/eigen",
     "#phonelibs/curl/include",
@@ -253,7 +254,7 @@ SConscript(['phonelibs/SConscript'])
 
 if arch != "Darwin":
   SConscript(['selfdrive/camerad/SConscript'])
-  #SConscript(['selfdrive/modeld/SConscript'])
+  SConscript(['selfdrive/modeld/SConscript'])
 
 SConscript(['selfdrive/controls/lib/cluster/SConscript'])
 SConscript(['selfdrive/controls/lib/lateral_mpc/SConscript'])
@@ -266,8 +267,8 @@ SConscript(['selfdrive/proclogd/SConscript'])
 #SConscript(['selfdrive/ui/SConscript'])
 SConscript(['selfdrive/loggerd/SConscript'])
 
-#if arch == "aarch64" or arch == "armv7l":
-  #SConscript(['selfdrive/logcatd/SConscript'])
+if arch == "aarch64" or arch == "armv7l":
+  SConscript(['selfdrive/logcatd/SConscript'])
   #SConscript(['selfdrive/sensord/SConscript'])
   #SConscript(['selfdrive/clocksd/SConscript'])
 
