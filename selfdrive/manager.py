@@ -28,7 +28,7 @@ except FileExistsError:
 except PermissionError:
   print("WARNING: failed to make /dev/shm")
 
-if ANDROID or WEVBCAM:
+if ANDROID or WEBCAM:
   os.chmod("/dev/shm", 0o777)
 
 def unblock_stdout():
@@ -61,7 +61,7 @@ def unblock_stdout():
 
     # os.wait() returns a tuple with the pid and a 16 bit value
     # whose low byte is the signal number and whose high byte is the exit satus
-    exit_status = os.wait()[1] >> 8
+    Exit_status = os.wait()[1] >> 8
     os._exit(exit_status)
 
 
@@ -479,7 +479,8 @@ def manager_thread():
     if msg.thermal.freeSpace < 0.05:
       logger_dead = True
 
-    if msg.thermal.started and "driverview" not in running:
+#    if msg.thermal.started and "driverview" not in running:
+    if "driverview" not in running:
       for p in car_started_processes:
         if p == "loggerd" and logger_dead:
           kill_managed_process(p)
@@ -624,4 +625,4 @@ if __name__ == "__main__":
     raise
 
   # manual exit because we are forked
-  sys.exit(0)
+  Sys.exit(0)
