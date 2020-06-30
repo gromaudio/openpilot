@@ -1055,7 +1055,7 @@ void init_buffers(VisionState *s) {
   // allocate camera buffers
 
   for (int i=0; i<FRAME_BUF_COUNT; i++) {
-  fprintf(stderr, "visionbuf_allocate_cl FRAMES: %d, %d of %d\n", s->frame_size, i, FRAME_BUF_COUNT);
+  fprintf(stderr, "visionbuf_allocate_cl: %d, %d of %d\n", s->frame_size, i, FRAME_BUF_COUNT);
     s->camera_bufs[i] = visionbuf_allocate_cl(s->frame_size, s->device_id, s->context,
                                               &s->camera_bufs_cl[i]);
     #ifndef QCOM2
@@ -1120,7 +1120,6 @@ void init_buffers(VisionState *s) {
   s->yuv_buf_size = s->rgb_width * s->rgb_height * 3 / 2;
 
   for (int i=0; i<YUV_COUNT; i++) {
-    fprintf(stderr, "visionbuf_allocate_cl YUV 1: %d, %d of %d\n", s->yuv_buf_size, i, YUV_COUNT);
     s->yuv_ion[i] = visionbuf_allocate_cl(s->yuv_buf_size, s->device_id, s->context, &s->yuv_cl[i]);
     s->yuv_bufs[i].y = (uint8_t*)s->yuv_ion[i].addr;
     s->yuv_bufs[i].u = s->yuv_bufs[i].y + (s->yuv_width * s->yuv_height);
@@ -1135,12 +1134,12 @@ void init_buffers(VisionState *s) {
   s->yuv_front_height = s->rgb_front_height;
   s->yuv_front_buf_size = s->rgb_front_width * s->rgb_front_height * 3 / 2;
 
-  /*for (int i=0; i<YUV_COUNT; i++) {
+  for (int i=0; i<YUV_COUNT; i++) {
     s->yuv_front_ion[i] = visionbuf_allocate_cl(s->yuv_front_buf_size, s->device_id, s->context, &s->yuv_front_cl[i]);
     s->yuv_front_bufs[i].y = (uint8_t*)s->yuv_front_ion[i].addr;
     s->yuv_front_bufs[i].u = s->yuv_front_bufs[i].y + (s->yuv_front_width * s->yuv_front_height);
     s->yuv_front_bufs[i].v = s->yuv_front_bufs[i].u + (s->yuv_front_width/2 * s->yuv_front_height/2);
-  }*/
+  }
 
   if (s->cameras.rear.ci.bayer) {
     // debayering does a 2x downscale
