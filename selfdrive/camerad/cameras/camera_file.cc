@@ -128,6 +128,7 @@ void cameras_init(DualCameraState *s) {
   memset(s, 0, sizeof(*s));
 
   camera_init(&s->rear, CAMERA_ID_LGC920, 20);
+  camera_init(&s->front, CAMERA_ID_LGC920, 10);
   s->rear.transform = (mat3){{
     1.0, 0.0, 0.0,
     0.0, 1.0, 0.0,
