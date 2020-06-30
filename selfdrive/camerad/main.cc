@@ -153,7 +153,7 @@ struct VisionState {
 };
 
 // frontview thread
-/*void* frontview_thread(void *arg) {
+void* frontview_thread(void *arg) {
   int err;
   VisionState *s = (VisionState*)arg;
 
@@ -355,6 +355,11 @@ struct VisionState {
       }
     }
 
+    /*FILE *f = fopen("/tmp/test2", "wb");
+    printf("%d %d\n", s->rgb_front_height, s->rgb_front_stride);
+    fwrite(bgr_front_ptr, 1, s->rgb_front_stride * s->rgb_front_height, f);
+    fclose(f);*/
+
     tbuffer_dispatch(&s->ui_front_tb, ui_idx);
 
     double t2 = millis_since_boot();
@@ -366,7 +371,7 @@ struct VisionState {
   delete dmonstate_sock;
 
   return NULL;
-}*/
+}
 // processing
 void* processing_thread(void *arg) {
   int err;
@@ -1065,12 +1070,12 @@ void init_buffers(VisionState *s) {
     #endif
   }
 
-  /*for (int i=0; i<FRAME_BUF_COUNT; i++) {
+  for (int i=0; i<FRAME_BUF_COUNT; i++) {
     fprintf(stderr, "visionbuf_allocate_cl front: %d, %d of %d\n", s->frame_size, i, FRAME_BUF_COUNT);
     s->front_camera_bufs[i] = visionbuf_allocate_cl(s->cameras.front.frame_size,
                                                        s->device_id, s->context,
                                                        &s->front_camera_bufs_cl[i]);
-  }*/
+  }
 
   // processing buffers
   if (s->cameras.rear.ci.bayer) {
@@ -1092,13 +1097,13 @@ void init_buffers(VisionState *s) {
   tbuffer_init(&s->ui_tb, UI_BUF_COUNT, "rgb");
 
   //assert(s->cameras.front.ci.bayer);
-  /*if (s->cameras.front.ci.bayer) {
+  if (s->cameras.front.ci.bayer) {
     s->rgb_front_width = s->cameras.front.ci.frame_width/2;
     s->rgb_front_height = s->cameras.front.ci.frame_height/2;
   } else {
     s->rgb_front_width = s->cameras.front.ci.frame_width;
     s->rgb_front_height = s->cameras.front.ci.frame_height;
-  }*/
+  }
   
 
   for (int i=0; i<UI_BUF_COUNT; i++) {
@@ -1157,7 +1162,7 @@ void init_buffers(VisionState *s) {
     assert(err == 0);
   }
 
-  /*if (s->cameras.front.ci.bayer) {
+  if (s->cameras.front.ci.bayer) {
     s->prg_debayer_front = build_debayer_program(s, s->cameras.front.ci.frame_width, s->cameras.front.ci.frame_height,
                                                     s->cameras.front.ci.frame_stride,
                                                  s->rgb_front_width, s->rgb_front_height, s->rgb_front_stride,
@@ -1165,7 +1170,7 @@ void init_buffers(VisionState *s) {
 
     s->krnl_debayer_front = clCreateKernel(s->prg_debayer_front, "debayer10", &err);
     assert(err == 0);
-  }*/
+  }
 
   s->prg_rgb_laplacian = build_conv_program(s, s->rgb_width/NUM_SEGMENTS_X, s->rgb_height/NUM_SEGMENTS_Y, 
                                             3);
@@ -1198,9 +1203,9 @@ void free_buffers(VisionState *s) {
     visionbuf_free(&s->stats_bufs[i]);
   }
 
-  /*for (int i=0; i<FRAME_BUF_COUNT; i++) {
+  for (int i=0; i<FRAME_BUF_COUNT; i++) {
    visionbuf_free(&s->front_camera_bufs[i]);
-  }*/
+  }
 
   for (int i=0; i<UI_BUF_COUNT; i++) {
     visionbuf_free(&s->rgb_bufs[i]);
@@ -1233,10 +1238,10 @@ void party(VisionState *s) {
 
 #ifndef QCOM2
   // TODO: fix front camera on qcom2
-  /*pthread_t frontview_thread_handle;
+  pthread_t frontview_thread_handle;
   err = pthread_create(&frontview_thread_handle, NULL,
                        frontview_thread, s);
-  assert(err == 0);*/
+  assert(err == 0);
 #endif
 
   // priority for cameras
@@ -1253,9 +1258,9 @@ void party(VisionState *s) {
   zsock_signal(s->terminate_pub, 0);
 
 #ifndef QCOM2
-  /*LOG("joining frontview_thread");
+  LOG("joining frontview_thread");
   err = pthread_join(frontview_thread_handle, NULL);
-  assert(err == 0);*/
+  assert(err == 0);
 #endif
 
   LOG("joining visionserver_thread");
