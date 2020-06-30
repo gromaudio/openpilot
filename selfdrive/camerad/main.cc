@@ -1101,7 +1101,7 @@ void init_buffers(VisionState *s) {
   }*/
   
 
-  for (int i=0; i<UI_BUF_COUNT; i++) {
+  /*for (int i=0; i<UI_BUF_COUNT; i++) {
     VisionImg img = visionimg_alloc_rgb24(s->rgb_front_width, s->rgb_front_height, &s->rgb_front_bufs[i]);
     s->rgb_front_bufs_cl[i] = visionbuf_to_cl(&s->rgb_front_bufs[i], s->device_id, s->context);
     if (i == 0){
@@ -1109,7 +1109,7 @@ void init_buffers(VisionState *s) {
       s->rgb_front_buf_size = img.size;
     }
   }
-  tbuffer_init(&s->ui_front_tb, UI_BUF_COUNT, "frontrgb");
+  tbuffer_init(&s->ui_front_tb, UI_BUF_COUNT, "frontrgb");*/
 
   // yuv back for recording and orbd
   pool_init(&s->yuv_pool, YUV_COUNT);
@@ -1128,12 +1128,13 @@ void init_buffers(VisionState *s) {
   }
 
   // yuv front for recording
-  pool_init(&s->yuv_front_pool, YUV_COUNT);
+  /*pool_init(&s->yuv_front_pool, YUV_COUNT);
   s->yuv_front_tb = pool_get_tbuffer(&s->yuv_front_pool);
 
   s->yuv_front_width = s->rgb_front_width;
   s->yuv_front_height = s->rgb_front_height;
   s->yuv_front_buf_size = s->rgb_front_width * s->rgb_front_height * 3 / 2;
+  */
 
   /*for (int i=0; i<YUV_COUNT; i++) {
     s->yuv_front_ion[i] = visionbuf_allocate_cl(s->yuv_front_buf_size, s->device_id, s->context, &s->yuv_front_cl[i]);
@@ -1207,9 +1208,9 @@ void free_buffers(VisionState *s) {
     visionbuf_free(&s->rgb_bufs[i]);
   }
 
-  for (int i=0; i<UI_BUF_COUNT; i++) {
+  /*for (int i=0; i<UI_BUF_COUNT; i++) {
     visionbuf_free(&s->rgb_front_bufs[i]);
-  }
+  }*/
 
   for (int i=0; i<YUV_COUNT; i++) {
     visionbuf_free(&s->yuv_ion[i]);
