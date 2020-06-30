@@ -76,9 +76,9 @@ static void* rear_thread(void *arg) {
     // Note that the full frame size (in bytes) for yuv420p
     // is (W*H*3)/2. i.e. 1.5 bytes per pixel. This is due
     // to the U and V components being stored at lower resolution.
-    count = fread(frame, 1, (FRAME_HEIGHT*FRAME_WIDTH*3)/2, pipein);
+    /*count = fread(frame, 1, (FRAME_HEIGHT*FRAME_WIDTH*3)/2, pipein);
        
-     int transformed_size = count;
+    int transformed_size = count;
 
     const int buf_idx = tbuffer_select(tb);
     s->camera_bufs_metadata[buf_idx] = {
@@ -100,6 +100,7 @@ static void* rear_thread(void *arg) {
     clWaitForEvents(1, &map_event);
     clReleaseEvent(map_event);
     tbuffer_dispatch(tb, buf_idx);
+    */
 
     frame_id += 1;
   }
