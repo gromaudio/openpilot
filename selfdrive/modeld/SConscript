@@ -12,7 +12,7 @@ common_src = [
 if arch == "aarch64":
   libs += ['gsl', 'CB', 'gnustl_shared']
 elif arch == "armv7l":
-  libs += ['gsl', 'gnustl_shared', 'gslcblas', 'atomic']
+  libs += ['gsl', 'gnustl_shared', 'gslcblas', 'symphony-cpu', 'atomic']
   common_src += ['runners/tfmodel.cc']
   # tell runners to use it
   lenv['CFLAGS'].append("-DUSE_TF_MODEL")
