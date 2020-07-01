@@ -26,7 +26,9 @@ TFModel::TFModel(const char *path, float *_output, size_t _output_size, int runt
   assert(pipe(pipeout) == 0);
 
   std::string exe_dir = util::dir_name(util::readlink("/proc/self/exe"));
-  std::string keras_runner = exe_dir + "/runners/keras_runner.py";
+  //std::string keras_runner = exe_dir + "/runners/keras_runner.py";
+  // run tflite now
+  std::string keras_runner = exe_dir + "/runners/tflite_runner.py";
 
   proc_pid = fork();
   if (proc_pid == 0) {
