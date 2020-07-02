@@ -1060,7 +1060,6 @@ void init_buffers(VisionState *s) {
   // allocate camera buffers
 
   for (int i=0; i<FRAME_BUF_COUNT; i++) {
-  fprintf(stderr, "visionbuf_allocate_cl: %d, %d of %d\n", s->frame_size, i, FRAME_BUF_COUNT);
     s->camera_bufs[i] = visionbuf_allocate_cl(s->frame_size, s->device_id, s->context,
                                               &s->camera_bufs_cl[i]);
     #ifndef QCOM2
@@ -1071,7 +1070,6 @@ void init_buffers(VisionState *s) {
   }
 
   for (int i=0; i<FRAME_BUF_COUNT; i++) {
-    fprintf(stderr, "visionbuf_allocate_cl front: %d, %d of %d\n", s->frame_size, i, FRAME_BUF_COUNT);
     s->front_camera_bufs[i] = visionbuf_allocate_cl(s->cameras.front.frame_size,
                                                        s->device_id, s->context,
                                                        &s->front_camera_bufs_cl[i]);
