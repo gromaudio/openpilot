@@ -181,7 +181,9 @@ int main(int argc, char **argv) {
     while (!do_exit) {
       VIPCBuf *buf;
       VIPCBufExtra extra;
+      LOGW("visionstream_get START");
       buf = visionstream_get(&stream, &extra);
+      LOGW("visionstream_get END");
       if (buf == NULL) {
         LOGW("visionstream get failed");
         visionstream_destroy(&stream);

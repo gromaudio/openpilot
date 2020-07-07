@@ -13,8 +13,8 @@
 
 extern volatile sig_atomic_t do_exit;
 
-#define FRAME_WIDTH  1164
-#define FRAME_HEIGHT 874
+#define FRAME_WIDTH  853
+#define FRAME_HEIGHT 480
 
 unsigned char frame[(FRAME_WIDTH*FRAME_HEIGHT*3)/2];
 
@@ -67,7 +67,7 @@ static void* rear_thread(void *arg) {
 
 
   // Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
-  FILE *pipein = popen("ffmpeg -i /tmp/fcamera.mp4 -f image2pipe -vcodec rawvideo -pix_fmt yuv420p -", "r");
+  FILE *pipein = popen("ffmpeg -i /tmp/fcamera.mp4 -vf scale=853:480 -f image2pipe -vcodec rawvideo -pix_fmt yuv420p -", "r");
 
   // Process video frames
   while(!do_exit)
@@ -101,7 +101,7 @@ static void* rear_thread(void *arg) {
     clReleaseEvent(map_event);
     tbuffer_dispatch(tb, buf_idx);
     
-sleep(1);
+    sleep(1);
     frame_id += 1;
   }
 
