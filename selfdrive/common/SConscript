@@ -25,11 +25,12 @@ if arch == "aarch64":
   ]
   _gpu_libs = ['gui', 'adreno_utils']
 elif arch == "armv7l":
-  defines = {}
+  defines = {"CLU_NO_CACHE": None}
   files += [
-    'framebuffer.cc',
-    'touch.c',
-    'visionbuf_ion.c',
+ #   'framebuffer.cc',
+ #   'touch.c',
+ #   'visionbuf_ion.c',
+    'visionbuf_cl.c'
   ]
   _gpu_libs = ['gui']
 elif arch == "larch64":

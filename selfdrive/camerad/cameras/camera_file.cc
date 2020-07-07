@@ -67,7 +67,7 @@ static void* rear_thread(void *arg) {
 
 
   // Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
-  FILE *pipein = popen("ffmpeg -i fcamera.mp4 -f image2pipe -vcodec rawvideo -pix_fmt yuv420p -", "r");
+  FILE *pipein = popen("ffmpeg -i /tmp/fcamera.mp4 -f image2pipe -vcodec rawvideo -pix_fmt yuv420p -", "r");
 
   // Process video frames
   while(!do_exit)
@@ -76,8 +76,8 @@ static void* rear_thread(void *arg) {
     // Note that the full frame size (in bytes) for yuv420p
     // is (W*H*3)/2. i.e. 1.5 bytes per pixel. This is due
     // to the U and V components being stored at lower resolution.
-    /*count = fread(frame, 1, (FRAME_HEIGHT*FRAME_WIDTH*3)/2, pipein);
-       
+    count = fread(frame, 1, (FRAME_HEIGHT*FRAME_WIDTH*3)/2, pipein);
+    fprintf(stderr, "Size: %d, %d\n", count, frame_id);   
     int transformed_size = count;
 
     const int buf_idx = tbuffer_select(tb);
@@ -100,8 +100,8 @@ static void* rear_thread(void *arg) {
     clWaitForEvents(1, &map_event);
     clReleaseEvent(map_event);
     tbuffer_dispatch(tb, buf_idx);
-    */
-
+    
+sleep(1);
     frame_id += 1;
   }
 

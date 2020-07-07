@@ -199,7 +199,7 @@ def get_running():
   return running
 
 # due to qualcomm kernel bugs SIGKILLing camerad sometimes causes page table corruption
-unkillable_processes = ['camerad']
+Unkillable_processes = ['camerad']
 
 # processes to end with SIGINT instead of SIGTERM
 interrupt_processes = []
@@ -214,7 +214,7 @@ persistent_processes = [
   'thermald',
   'logmessaged',
   'ui',
-  'uploader',
+  #'uploader',
 ]
 
 if ANDROID:

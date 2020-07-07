@@ -1,5 +1,5 @@
 #include "visionbuf.h"
-
+#include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <assert.h>

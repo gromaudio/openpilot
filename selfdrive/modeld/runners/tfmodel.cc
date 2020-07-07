@@ -13,14 +13,15 @@
 
 
 TFModel::TFModel(const char *path, float *_output, size_t _output_size, int runtime) {
+  fprintf(stderr, "In model constructor: %d, %d, %s\n", _output_size, runtime, path);
   output = _output;
   output_size = _output_size;
 
   char tmp[1024];
   strncpy(tmp, path, sizeof(tmp));
   strstr(tmp, ".dlc")[0] = '\0';
-  strcat(tmp, ".keras");
-  LOGD("loading model %s", tmp);
+  strcat(tmp, ".tflite");
+  LOGE("loading model %s", tmp);
 
   assert(pipe(pipein) == 0);
   assert(pipe(pipeout) == 0);
@@ -32,7 +33,7 @@ TFModel::TFModel(const char *path, float *_output, size_t _output_size, int runt
 
   proc_pid = fork();
   if (proc_pid == 0) {
-    LOGD("spawning keras process %s", keras_runner.c_str());
+    LOGW("spawning keras process %s", keras_runner.c_str());
     char *argv[] = {(char*)keras_runner.c_str(), tmp, NULL};
     dup2(pipein[0], 0);
     dup2(pipeout[1], 1);
@@ -64,20 +65,20 @@ void TFModel::pwrite(float *buf, int size) {
     cbuf += err;
     tw -= err;
   }
-  LOGD("host write of size %d done", size);
+  LOGW("host write of size %d done", size);
 }
 
 void TFModel::pread(float *buf, int size) {
   char *cbuf = (char *)buf;
   int tr = size*sizeof(float);
   while (tr > 0) {
-    LOGD("host read remaining %d/%d", tr, size*sizeof(float));
+    LOGW("host read remaining %d/%d", tr, size*sizeof(float));
     int err = read(pipeout[0], cbuf, tr);
     assert(err >= 0);
     cbuf += err;
     tr -= err;
   }
-  LOGD("host read done");
+  LOGW("host read done");
 }
 
 void TFModel::addRecurrent(float *state, int state_size) {

@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -48,6 +49,7 @@ VisionBuf visionbuf_allocate(size_t len) {
   ion_alloc.flags = ION_FLAG_CACHED;
 
   err = ioctl(ion_fd, ION_IOC_ALLOC, &ion_alloc);
+  fprintf(stderr, "Reserve memory failed:\n%d, %d, %d\n", err, errno, ion_fd);
   assert(err == 0);
 
   struct ion_fd_data ion_fd_data = {0};

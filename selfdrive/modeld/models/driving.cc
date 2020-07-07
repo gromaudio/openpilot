@@ -35,7 +35,7 @@ void model_init(ModelState* s, cl_device_id device_id, cl_context context, int t
   const int output_size = OUTPUT_SIZE + TEMPORAL_SIZE;
   s->output = (float*)calloc(output_size, sizeof(float));
   
-  s->m = new DefaultRunModel("../../models/supercombo.dlc", s->output, output_size, USE_GPU_RUNTIME);
+  s->m = new DefaultRunModel("../../models/supercombo.dlc", s->output, output_size, 1);
 
 #ifdef TEMPORAL
   assert(temporal);
