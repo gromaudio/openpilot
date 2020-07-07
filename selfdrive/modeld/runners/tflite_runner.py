@@ -25,18 +25,24 @@ def run_loop(interpreter):
   #ishapes = [[1]+ii.get("shape")[1:] for ii in interpreter.get_input_details()]
   ishapes = [ii.get("shape") for ii in interpreter.get_input_details()]
   print("ready to run tflite model", ishapes, file=sys.stderr)
-  while 1:
-    inputs = []
-    for shp in ishapes:
-      ts = np.product(shp)
-      #print("reshaping %s with offset %d" % (str(shp), offset), file=sys.stderr)
-      inputs.append(read(ts).reshape(shp))
-    interpreter.set_tensor(input_details[0]['index'], inputs)
-    interpreter.invoke()
-    ret = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])
-    print(ret, file=sys.stderr)
-    for r in ret:
-      write(r)
+  input_details = interpreter.get_input_details()
+  output_details = interpreter.get_output_details()
+
+  index = 0
+  for shp in ishapes:
+    ts = np.product(shp)
+    #print("reshaping %s with offset %d" % (str(shp), offset), file=sys.stderr)
+    interpreter.set_tensor(input_details[index]['index'], input_data)
+    index += 1
+  interpreter.invoke()
+  ret = []
+  for x in range(12):
+    output = interpreter.get_tensor(interpreter.get_output_details()[x]['index']);
+    print(x, " ", output)
+    ret.append(output)
+  #print(ret, file=sys.stderr)
+  for r in ret:
+    write(r)
 
 if __name__ == "__main__":           
   #print(tf.__version__, file=sys.stderr)
@@ -46,6 +52,7 @@ if __name__ == "__main__":
   #  tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=2048)])
 
   interpreter = tflite.Interpreter(model_path=sys.argv[1])
+  interpreter.allocate_tensors()
   print(interpreter, file=sys.stderr)
 
   run_loop(interpreter)
