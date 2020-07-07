@@ -13,8 +13,11 @@
 
 extern volatile sig_atomic_t do_exit;
 
-#define FRAME_WIDTH  853
-#define FRAME_HEIGHT 480
+#define FRAME_WIDTH_SCALED  853
+#define FRAME_HEIGHT_SCALED 480
+
+#define FRAME_WIDTH  1164
+#define FRAME_HEIGHT 874
 
 unsigned char frame[(FRAME_WIDTH*FRAME_HEIGHT*3)/2];
 
@@ -62,8 +65,8 @@ static void* rear_thread(void *arg) {
   // in the vertical and horizontal directions for U and V.
   unsigned char *lum, *u, *v;
   lum = frame;
-  u = frame + FRAME_HEIGHT*FRAME_WIDTH;
-  v = u + (FRAME_HEIGHT*FRAME_WIDTH/4);
+  u = frame + FRAME_HEIGHT_SCALED*FRAME_WIDTH_SCALED;
+  v = u + (FRAME_HEIGHT_SCALED*FRAME_WIDTH_SCALED/4);
 
 
   // Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
@@ -76,7 +79,7 @@ static void* rear_thread(void *arg) {
     // Note that the full frame size (in bytes) for yuv420p
     // is (W*H*3)/2. i.e. 1.5 bytes per pixel. This is due
     // to the U and V components being stored at lower resolution.
-    count = fread(frame, 1, (FRAME_HEIGHT*FRAME_WIDTH*3)/2, pipein);
+    count = fread(frame, 1, (FRAME_HEIGHT_SCALED*FRAME_WIDTH_SCALED*3)/2, pipein);
     fprintf(stderr, "Size: %d, %d\n", count, frame_id);   
     int transformed_size = count;
 
