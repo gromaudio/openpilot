@@ -62,6 +62,86 @@ void location_callback(GpsLocation* location) {
   locationData.setSource(cereal::GpsLocationData::SensorSource::ANDROID);
 
   pm->send("gpsLocation", msg);
+
+
+  MessageBuilder msg_builder;
+  auto gpsLoc = msg_builder.initEvent().initGpsLocationExternal();
+  gpsLoc.setSource(cereal::GpsLocationData::SensorSource::UBLOX);
+  gpsLoc.setFlags(location->flags);
+  gpsLoc.setLatitude(location->latitude);
+  gpsLoc.setLongitude(location->longitude);
+  gpsLoc.setAltitude(location->altitude);
+  gpsLoc.setSpeed(location->speed);
+  gpsLoc.setBearing(location->bearing);
+  gpsLoc.setAccuracy(location->accuracy);
+  gpsLoc.setTimestamp(location->timestamp);
+  // velocity in meters
+  float f[] = { 1, 1, 1 };
+  gpsLoc.setVNED(f);
+  gpsLoc.setVerticalAccuracy(location->accuracy);
+  gpsLoc.setSpeedAccuracy(location->accuracy);
+  gpsLoc.setBearingAccuracy(1);
+
+  auto words = capnp::messageToFlatArray(msg_builder);
+  if(words.size() > 0) {
+    auto bytes = words.asBytes();
+    pm.send("gpsLocationExternal", bytes.begin(), bytes.size());
+  }
+
+  /*
+# android struct GpsLocation
+struct GpsLocationData {
+  # Contains GpsLocationFlags bits.
+  flags @0 :UInt16;
+
+  # Represents latitude in degrees.
+  latitude @1 :Float64;
+
+  # Represents longitude in degrees.
+  longitude @2 :Float64;
+
+  # Represents altitude in meters above the WGS 84 reference ellipsoid.
+  altitude @3 :Float64;
+
+  # Represents speed in meters per second.
+  speed @4 :Float32;
+
+  # Represents heading in degrees.
+  bearing @5 :Float32;
+
+  # Represents expected accuracy in meters. (presumably 1 sigma?)
+  accuracy @6 :Float32;
+
+  # Timestamp for the location fix.
+  # Milliseconds since January 1, 1970.
+  timestamp @7 :Int64;
+
+  source @8 :SensorSource;
+
+  # Represents NED velocity in m/s.
+  vNED @9 :List(Float32);
+
+  # Represents expected vertical accuracy in meters. (presumably 1 sigma?)
+  verticalAccuracy @10 :Float32;
+
+  # Represents bearing accuracy in degrees. (presumably 1 sigma?)
+  bearingAccuracy @11 :Float32;
+
+  # Represents velocity accuracy in m/s. (presumably 1 sigma?)
+  speedAccuracy @12 :Float32;
+
+  enum SensorSource {
+    android @0;
+    iOS @1;
+    car @2;
+    velodyne @3;  # Velodyne IMU
+    fusion @4;
+    external @5;
+    ublox @6;
+    trimble @7;
+  }
+}
+*/
 }
 
 pthread_t create_thread_callback(const char* name, void (*start)(void *), void* arg) {

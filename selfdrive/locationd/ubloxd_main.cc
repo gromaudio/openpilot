@@ -71,7 +71,7 @@ int ubloxd_main(poll_ubloxraw_msg_func poll_func, send_gps_event_func send_func)
             auto words = parser.gen_solution();
             if(words.size() > 0) {
               auto bytes = words.asBytes();
-              pm.send("gpsLocationExternal", bytes.begin(), bytes.size());
+              //pm.send("gpsLocationExternal", bytes.begin(), bytes.size());
             }
           } else
             LOGW("Unknown nav msg id: 0x%02X", parser.msg_id());
