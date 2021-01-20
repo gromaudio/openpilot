@@ -12,6 +12,8 @@
 #include "cameras/camera_qcom2.h"
 #elif WEBCAM
 #include "cameras/camera_webcam.h"
+#elif MIPI
+#include "cameras/camera_mipi.h"
 #else
 #include "cameras/camera_frame_stream.h"
 #endif

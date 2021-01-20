@@ -201,7 +201,7 @@ def get_running():
   return running
 
 # due to qualcomm kernel bugs SIGKILLing camerad sometimes causes page table corruption
-unkillable_processes = ['camerad']
+unkillable_processes = []
 
 # processes to end with SIGINT instead of SIGTERM
 interrupt_processes: List[str] = []
@@ -211,18 +211,18 @@ kill_processes = ['sensord']
 
 persistent_processes = [
   'thermald',
-  'logmessaged',
   'ui',
-  'uploader',
-  'deleter',
 ]
 
-if not PC:
+if ANDROID:
   persistent_processes += [
     'updated',
     'logcatd',
     'tombstoned',
     'sensord',
+    'uploader',
+    'deleter',
+    'logmessaged',
   ]
 
 car_started_processes = [
@@ -235,26 +235,26 @@ car_started_processes = [
   'camerad',
   'proclogd',
   'locationd',
-  'clocksd',
+  #'clocksd',
 ]
 
 driver_view_processes = [
-  'camerad',
-  'dmonitoringd',
-  'dmonitoringmodeld'
+  #'camerad',
+  #'dmonitoringd',
+  #'dmonitoringmodeld'
 ]
 
 if WEBCAM:
   car_started_processes += [
-    'dmonitoringd',
-    'dmonitoringmodeld',
+    #'dmonitoringd',
+    #'dmonitoringmodeld',
   ]
 
 if not PC:
   car_started_processes += [
     'ubloxd',
-    'dmonitoringd',
-    'dmonitoringmodeld',
+    #'dmonitoringd',
+    #'dmonitoringmodeld',
   ]
 
 if ANDROID:
@@ -552,14 +552,14 @@ def main():
     ("IsRHD", "0"),
     ("IsMetric", "0"),
     ("RecordFront", "0"),
-    ("HasAcceptedTerms", "0"),
-    ("HasCompletedSetup", "0"),
+    ("HasAcceptedTerms", "1"),
+    ("HasCompletedSetup", "1"),
     ("IsUploadRawEnabled", "1"),
     ("IsLdwEnabled", "1"),
     ("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')),
     ("OpenpilotEnabledToggle", "1"),
     ("LaneChangeEnabled", "1"),
-    ("IsDriverViewEnabled", "0"),
+    ("IsDriverViewEnabled", "1"),
   ]
 
   # set unset params

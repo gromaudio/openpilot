@@ -18,6 +18,7 @@ AddOption('--asan',
           help='turn on ASAN')
 
 real_arch = arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
+is_jetson = True
 if platform.system() == "Darwin":
   arch = "Darwin"
 
@@ -28,15 +29,22 @@ USE_WEBCAM = os.getenv("USE_WEBCAM") is not None
 QCOM_REPLAY = arch == "aarch64" and os.getenv("QCOM_REPLAY") is not None
 
 if arch == "aarch64" or arch == "larch64":
-  lenv = {
-    "LD_LIBRARY_PATH": '/data/data/com.termux/files/usr/lib',
-    "PATH": os.environ['PATH'],
-  }
+  if is_jetson:
+    USE_WEBCAM=True
+    lenv = {
+      "LD_LIBRARY_PATH": '/usr/lib:/usr/local/lib/:/usr/lib/aarch64-linux-gnu',
+      "PATH": os.environ['PATH'],
+      "ANDROID_DATA": "/data",
+      "ANDROID_ROOT": "/",
+    }
+  else:
+    lenv = {
+      "LD_LIBRARY_PATH": '/data/data/com.termux/files/usr/lib',
+      "PATH": os.environ['PATH'],
+      "ANDROID_DATA": os.environ['ANDROID_DATA'],
+      "ANDROID_ROOT": os.environ['ANDROID_ROOT'],
+    }
 
-  if arch == "aarch64":
-    # android
-    lenv["ANDROID_DATA"] = os.environ['ANDROID_DATA']
-    lenv["ANDROID_ROOT"] = os.environ['ANDROID_ROOT']
 
   cpppath = [
     "#phonelibs/opencl/include",
@@ -44,6 +52,7 @@ if arch == "aarch64" or arch == "larch64":
 
   libpath = [
     "/usr/lib",
+    "/data/data/com.termux/files/usr/lib",
     "/system/vendor/lib64",
     "/system/comma/usr/lib",
     "#phonelibs/nanovg",
@@ -58,6 +67,39 @@ if arch == "aarch64" or arch == "larch64":
     cflags = ["-DQCOM2", "-mcpu=cortex-a57"]
     cxxflags = ["-DQCOM2", "-mcpu=cortex-a57"]
     rpath = ["/usr/local/lib"]
+  elif is_jetson == True:
+    cflags = []
+    cxxflags = []
+    cpppath = [
+      "/usr/local/include",
+      "/usr/local/include/opencv4",
+      "/usr/include/khronos-api",
+      "/usr/include",
+      "#phonelibs/snpe/include",
+      "/usr/include/aarch64-linux-gnu",
+      "/usr/local/cuda/include",
+    ]
+    libpath = [
+      "/usr/local/lib",
+      "/usr/lib/aarch64-linux-gnu",
+      "/usr/lib",
+      "#cereal",
+      "/data/op_rk3399_setup/external/snpe/lib/lib",
+      "/data/data/com.termux/files/usr/lib",
+      "#phonelibs/nanovg",
+      "#phonelibs/libyuv/aarch64",
+      "/data/op_rk3399_setup/support_files/lib",
+      "/usr/local/cuda/lib64"
+    ]
+    rpath = ["/system/vendor/lib64",
+      "/usr/local/lib",
+      "/usr/lib/aarch64-linux-gnu",
+      "/usr/lib",
+      "/data/op_rk3399_setup/external/snpe/lib/lib",
+      "/data/op_rk3399_setup/support_files/lib",
+      "cereal",
+      "selfdrive/common",
+    ] 
   else:
     libpath += [
       "#phonelibs/snpe/aarch64",
@@ -245,16 +287,20 @@ elif arch == "aarch64":
 else:
   envCython["LINKFLAGS"]=["-pthread", "-shared"]
 
-envCython["LIBS"] = python_libs
+envCython["LIBS"] = []#python_libs
 
 Export('envCython')
 
 # still needed for apks
-zmq = 'zmq'
-Export('env', 'arch', 'real_arch', 'zmq', 'SHARED', 'USE_WEBCAM', 'QCOM_REPLAY')
+#zmq = 'zmq'
+zmq = FindFile("libzmq.a", libpath)
+if is_jetson:
+  zmq = FindFile("libzmq.so", libpath)
+Export('env', 'arch', 'real_arch', 'zmq', 'SHARED', 'USE_WEBCAM', 'QCOM_REPLAY', 'is_jetson')
 
 # cereal and messaging are shared with the system
 SConscript(['cereal/SConscript'])
+SHARED = False
 if SHARED:
   cereal = abspath([File('cereal/libcereal_shared.so')])
   messaging = abspath([File('cereal/libmessaging_shared.so')])
@@ -292,16 +338,18 @@ SConscript(['selfdrive/controls/lib/longitudinal_mpc_model/SConscript'])
 
 SConscript(['selfdrive/boardd/SConscript'])
 SConscript(['selfdrive/proclogd/SConscript'])
-SConscript(['selfdrive/clocksd/SConscript'])
 
 SConscript(['selfdrive/loggerd/SConscript'])
 
+if not is_jetson:
+  SConscript(['selfdrive/sensord/SConscript'])
+  SConscript(['selfdrive/clocksd/SConscript'])
+
 SConscript(['selfdrive/locationd/SConscript'])
 SConscript(['selfdrive/locationd/models/SConscript'])
-SConscript(['selfdrive/sensord/SConscript'])
 SConscript(['selfdrive/ui/SConscript'])
 
-if arch != "Darwin":
+if arch != "Darwin" and not is_jetson:
   SConscript(['selfdrive/logcatd/SConscript'])
 
 if arch == "x86_64":

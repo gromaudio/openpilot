@@ -184,11 +184,11 @@ int main(int argc, char **argv) {
           vec_desire[desire] = 1.0;
         }
 
-        mt1 = millis_since_boot();
+        
 
         // TODO: don't make copies!
         memcpy(yuv_ion.addr, buf->addr, buf_info.buf_len);
-
+        mt1 = millis_since_boot();
         ModelDataRaw model_buf =
             model_eval_frame(&model, q, yuv_ion.buf_cl, buf_info.width, buf_info.height,
                              model_transform, NULL, vec_desire);
@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
         model_publish_v2(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_ratio, model_buf, extra.timestamp_eof, model_execution_time);
         posenet_publish(pm, extra.frame_id, frame_id, vipc_dropped_frames, frame_drop_ratio, model_buf, extra.timestamp_eof);
 
-        LOGD("model process: %.2fms, from last %.2fms, vipc_frame_id %zu, frame_id, %zu, frame_drop %.3f", mt2-mt1, mt1-last, extra.frame_id, frame_id, frame_drop_ratio);
+        LOGW("model process: %.2fms, from last %.2fms, vipc_frame_id %zu, frame_id, %zu, frame_drop %.3f", mt2-mt1, mt1-last, extra.frame_id, frame_id, frame_drop_ratio);
         last = mt1;
         last_vipc_frame_id = extra.frame_id;
       }

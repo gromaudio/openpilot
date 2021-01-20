@@ -81,6 +81,10 @@ ModelDataRaw model_eval_frame(ModelState* s, cl_command_queue q,
                            cl_mem yuv_cl, int width, int height,
                            mat3 transform, void* sock,
                            float *desire_in) {
+
+//double mt1 = 0, mt2 = 0, mt3 = 0, mt4 = 0;
+
+//mt1 = millis_since_boot();
 #ifdef DESIRE
   if (desire_in != NULL) {
     for (int i = 1; i < DESIRE_LEN; i++) {
@@ -101,8 +105,9 @@ ModelDataRaw model_eval_frame(ModelState* s, cl_command_queue q,
   float *new_frame_buf = frame_prepare(&s->frame, q, yuv_cl, width, height, transform);
   memmove(&s->input_frames[0], &s->input_frames[MODEL_FRAME_SIZE], sizeof(float)*MODEL_FRAME_SIZE);
   memmove(&s->input_frames[MODEL_FRAME_SIZE], new_frame_buf, sizeof(float)*MODEL_FRAME_SIZE);
+  //mt2 = millis_since_boot();
   s->m->execute(s->input_frames, MODEL_FRAME_SIZE*2);
-
+  //mt3 = millis_since_boot();
   #ifdef DUMP_YUV
     FILE *dump_yuv_file = fopen("/sdcard/dump.yuv", "wb");
     fwrite(new_frame_buf, MODEL_HEIGHT*MODEL_WIDTH*3/2, sizeof(float), dump_yuv_file);
@@ -122,6 +127,8 @@ ModelDataRaw model_eval_frame(ModelState* s, cl_command_queue q,
   net_outputs.lead_prob = &s->output[LEAD_PROB_IDX];
   net_outputs.meta = &s->output[DESIRE_STATE_IDX];
   net_outputs.pose = &s->output[POSE_IDX];
+  //mt4 = millis_since_boot();
+  //printf("memmove: %.2fms, execute: %.2fms,  rest: %.2fms, total: %.2fms\n", mt2-mt1, mt3-mt2, mt4-mt3, mt4-mt1);
   return net_outputs;
 }
 

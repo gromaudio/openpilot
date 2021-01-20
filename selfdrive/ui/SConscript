@@ -1,8 +1,8 @@
 import os
-Import('env', 'arch', 'real_arch', 'common', 'messaging', 'gpucommon', 'visionipc', 'cereal')
+Import('env', 'arch', 'real_arch', 'common', 'messaging', 'gpucommon', 'visionipc', 'cereal', 'is_jetson')
 
 qt_env = None
-if arch in ["x86_64", "Darwin", "larch64"]:
+if arch in ["x86_64", "Darwin", "larch64"] or is_jetson:
   qt_env = env.Clone()
 
   if arch == "Darwin":

@@ -1,8 +1,8 @@
-Import('env', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc', 'USE_WEBCAM', 'QCOM_REPLAY')
+Import('env', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc', 'USE_WEBCAM', 'QCOM_REPLAY', 'is_jetson')
 
 libs = ['m', 'pthread', common, 'jpeg', 'OpenCL', cereal, messaging, 'zmq', 'capnp', 'kj', visionipc, gpucommon]
 
-if arch == "aarch64":
+if arch == "aarch64" and not is_jetson:
   libs += ['gsl', 'CB', 'adreno_utils', 'EGL', 'GLESv3', 'cutils', 'ui']
   if QCOM_REPLAY:
     cameras = ['cameras/camera_frame_stream.cc']
@@ -14,11 +14,18 @@ elif arch == "larch64":
 else:
   if USE_WEBCAM:
     libs += ['opencv_core', 'opencv_highgui', 'opencv_imgproc', 'opencv_videoio']
-    cameras = ['cameras/camera_webcam.cc']
     env = env.Clone()
-    env.Append(CXXFLAGS = '-DWEBCAM')
-    env.Append(CFLAGS = '-DWEBCAM')
-    env.Append(CPPPATH = '/usr/local/include/opencv4')
+    if is_jetson:
+      libs += ['opencv_video']
+      env.Append(CPPPATH = '/usr/include/opencv4')
+      cameras = ['cameras/camera_mipi.cc']
+      env.Append(CXXFLAGS = '-DMIPI')
+      env.Append(CFLAGS = '-DMIPI')
+    else:
+      env.Append(CPPPATH = '/usr/local/include/opencv4')
+      cameras = ['cameras/camera_webcam.cc']
+      env.Append(CXXFLAGS = '-DWEBCAM')
+      env.Append(CFLAGS = '-DWEBCAM')
   else:
     cameras = ['cameras/camera_frame_stream.cc']
 

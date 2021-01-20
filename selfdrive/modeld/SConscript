@@ -1,4 +1,4 @@
-Import('env', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc')
+Import('env', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc', 'is_jetson')
 lenv = env.Clone()
 
 libs = [cereal, messaging, common, 'OpenCL', 'SNPE', 'symphony-cpu', 'capnp', 'zmq', 'kj', 'yuv', gpucommon, visionipc]
@@ -12,7 +12,7 @@ common_src = [
   "transforms/transform.cc"
 ]
 
-if arch == "aarch64":
+if arch == "aarch64" and not is_jetson:
   libs += ['gsl', 'CB', 'gnustl_shared']
   if not TEST_THNEED:
     common_src += ["thneed/thneed.cc"]
@@ -27,12 +27,32 @@ elif arch == "larch64":
 else:
   libs += ['pthread']
 
-  # for onnx support
-  common_src += ['runners/onnxmodel.cc']
+  if is_jetson:
+    # no SNPE on ubuntu
+    del libs[libs.index('SNPE')]
+    del libs[libs.index('symphony-cpu')]
+    del common_src[common_src.index('runners/snpemodel.cc')]
+    libs += ['cudart', 'rt', 'nvinfer']
+    common_src += ['runners/trtmodel.cc']
+    lenv['CFLAGS'].append("-DUSE_TRT_MODEL")
+    lenv['CXXFLAGS'].append("-DUSE_TRT_MODEL")
+    #/usr/local/cuda
+    #PUBLIC ${ONNX_INCLUDE_DIR}
+    #PUBLIC ${CUDA_INSTALL_DIR}/include
 
-  # tell runners to use onnx
-  lenv['CFLAGS'].append("-DUSE_ONNX_MODEL")
-  lenv['CXXFLAGS'].append("-DUSE_ONNX_MODEL")
+    #set(SAMPLE_DEP_LIBS
+    #${CUDART_LIB}
+    #${CUBLAS_LIB}
+    #${CUDNN_LIB}
+    ##nvinfer
+    #${RT_LIB}
+    #${CMAKE_DL_LIBS}
+    #${CMAKE_THREAD_LIBS_INIT}
+  else:
+    common_src += ['runners/onnxmodel.cc']
+    # tell runners to use onnx
+    lenv['CFLAGS'].append("-DUSE_ONNX_MODEL")
+    lenv['CXXFLAGS'].append("-DUSE_ONNX_MODEL")
 
   if arch == "Darwin":
     # fix OpenCL
@@ -46,10 +66,11 @@ else:
 
 common = lenv.Object(common_src)
 
-lenv.Program('_dmonitoringmodeld', [
-    "dmonitoringmodeld.cc",
-    "models/dmonitoring.cc",
-  ]+common, LIBS=libs)
+if not is_jetson:
+  lenv.Program('_dmonitoringmodeld', [
+      "dmonitoringmodeld.cc",
+      "models/dmonitoring.cc",
+    ]+common, LIBS=libs)
 
 lenv.Program('_modeld', [
     "modeld.cc",

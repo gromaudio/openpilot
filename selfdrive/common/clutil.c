@@ -242,7 +242,6 @@ cl_program cl_cached_program_from_string(cl_context ctx, cl_device_id device_id,
 #endif
   if (prg == NULL) {
     prg = CL_CHECK_ERR(clCreateProgramWithSource(ctx, 1, (const char**)&src, NULL, &err));
-
     int err = clBuildProgram(prg, 1, &device_id, args, NULL, NULL);
     if (err != 0) {
       cl_print_build_errors(prg, device_id);

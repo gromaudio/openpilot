@@ -11,7 +11,8 @@
     #include "onnxmodel.h"
     #define DefaultRunModel ONNXModel
   #else
-    #define DefaultRunModel SNPEModel
+    #include "trtmodel.h"
+    #define DefaultRunModel TRTModel
   #endif
 #endif
 

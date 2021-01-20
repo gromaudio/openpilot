@@ -1,4 +1,4 @@
-Import('env', 'arch', 'SHARED', 'QCOM_REPLAY')
+Import('env', 'arch', 'SHARED', 'QCOM_REPLAY', 'is_jetson')
 
 if SHARED:
   fxn = env.SharedLibrary
@@ -18,7 +18,7 @@ files = [
   'visionimg.cc',
 ]
 
-if arch == "aarch64":
+if arch == "aarch64" and not is_jetson:
   defines = {}
   files += [
     'framebuffer.cc',
